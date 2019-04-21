@@ -24,9 +24,7 @@ pub struct Universe {
 
 #[wasm_bindgen]
 impl Universe {
-    pub fn new() -> Universe {
-        let width = 64;
-        let height = 64;
+    pub fn new(width: u32, height: u32) -> Universe {
 
         let cells = (0..width * height)
             .map(|i| {
@@ -47,6 +45,18 @@ impl Universe {
 
     pub fn render(&self) -> String {
         self.to_string()
+    }
+
+    pub fn width(&self) -> u32 {
+        self.width
+    }
+
+    pub fn height(&self) -> u32 {
+        self.height
+    }
+
+    pub fn cells(&self) -> *const Cell {
+        self.cells.as_ptr()
     }
 
     pub fn tick(&mut self) {
@@ -81,7 +91,7 @@ impl Universe {
         (row * self.width + column) as usize
     }
 
-    fn live_neighbor_count(&self, row: u32, _column: u32) -> u8 {
+    fn live_neighbor_count(&self, row: u32, column: u32) -> u8 {
         let mut count = 0;
 
         for delta_row in [self.height - 1, 0, 1].iter().cloned() {
@@ -91,7 +101,7 @@ impl Universe {
                 }
 
                 let neighbor_row = (row + delta_row) % self.height;
-                let neighbor_col = (row + delta_col) % self.width;
+                let neighbor_col = (column + delta_col) % self.width;
                 let idx = self.get_index(neighbor_row, neighbor_col);
                 count += self.cells[idx] as u8;
             }
