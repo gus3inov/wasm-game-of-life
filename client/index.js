@@ -1,7 +1,7 @@
 import { Universe, Cell } from "wasm-game-of-life";
 import { memory } from "wasm-game-of-life/wasm_game_of_life_bg";
 
-const CELL_SIZE = 5;
+const CELL_SIZE = 7;
 const GRID_COLOR = "#211f1f";
 const DEAD_COLOR = "#211f1f";
 const ALIVE_COLOR = "#3dc126";
@@ -15,7 +15,6 @@ const height = universe.height();
 const canvas = document.getElementById("game-of-life-canvas");
 canvas.height = (CELL_SIZE + 1) * height + 1;
 canvas.width = (CELL_SIZE + 1) * width + 1;
-console.log(canvas.height);
 const ctx = canvas.getContext("2d");
 
 const drawGrid = () => {
