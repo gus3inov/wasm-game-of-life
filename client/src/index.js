@@ -1,5 +1,6 @@
 import { Universe, Cell } from "wasm-game-of-life";
 import { memory } from "wasm-game-of-life/wasm_game_of_life_bg";
+import { Fps } from "./fps";
 
 const CELL_SIZE = 7;
 const GRID_COLOR = "#211f1f";
@@ -19,14 +20,18 @@ canvas.height = (CELL_SIZE + 1) * height + 1;
 canvas.width = (CELL_SIZE + 1) * width + 1;
 const ctx = canvas.getContext("2d");
 
-let requestId = null;
+let animationId = null;
+
+const fps = new Fps();
 
 const renderLoop = () => {
+  fps.render();
+
   universe.tick();
 
   drawGrid();
   drawCells();
-  requestId = requestAnimationFrame(renderLoop);
+  animationId = requestAnimationFrame(renderLoop);
 };
 
 const drawGrid = () => {
@@ -55,11 +60,30 @@ const drawCells = () => {
   const cells = new Uint8Array(memory.buffer, cellsPtr, width * height);
   ctx.beginPath();
 
+  ctx.fillStyle = ALIVE_COLOR;
   for (let row = 0; row < height; row++) {
     for (let col = 0; col < width; col++) {
       const idx = getIndex(row, col);
+      if (cells[idx] !== Cell.Alive) {
+        continue;
+      }
 
-      ctx.fillStyle = cells[idx] === Cell.Dead ? DEAD_COLOR : ALIVE_COLOR;
+      ctx.fillRect(
+        col * (CELL_SIZE + 1) + 1,
+        row * (CELL_SIZE + 1) + 1,
+        CELL_SIZE,
+        CELL_SIZE
+      );
+    }
+  }
+
+  ctx.fillStyle = DEAD_COLOR;
+  for (let row = 0; row < height; row++) {
+    for (let col = 0; col < width; col++) {
+      const idx = getIndex(row, col);
+      if (cells[idx] !== Cell.Dead) {
+        continue;
+      }
 
       ctx.fillRect(
         col * (CELL_SIZE + 1) + 1,
@@ -73,12 +97,12 @@ const drawCells = () => {
   ctx.stroke();
 };
 
-startBtn.addEventListener('click', () => {
+startBtn.addEventListener("click", () => {
   renderLoop();
 });
 
-stopBtn.addEventListener('click', () => {
-  cancelAnimationFrame(requestId);
+stopBtn.addEventListener("click", () => {
+  cancelAnimationFrame(animationId);
 });
 
 canvas.addEventListener("click", event => {
